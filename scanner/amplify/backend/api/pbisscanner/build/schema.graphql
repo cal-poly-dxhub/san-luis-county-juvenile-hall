@@ -1,0 +1,357 @@
+enum Category {
+  SAFE
+  RESPONSIBLE
+  CONSIDERATE
+}
+
+type Location {
+  name: String!
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Juvenile {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  points: Int!
+  event_id: Int!
+  active: Int!
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Behavior {
+  id: ID!
+  title: String!
+  category: Category!
+  location: Location!
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Queue {
+  id: ID!
+  _version: Int!
+  _deleted: Boolean
+  _lastChangedAt: AWSTimestamp!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelLocationConnection {
+  items: [Location]
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+input ModelLocationFilterInput {
+  name: ModelStringInput
+  and: [ModelLocationFilterInput]
+  or: [ModelLocationFilterInput]
+  not: ModelLocationFilterInput
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+type Query {
+  syncLocations(filter: ModelLocationFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelLocationConnection
+  getLocation(id: ID!): Location
+  listLocations(filter: ModelLocationFilterInput, limit: Int, nextToken: String): ModelLocationConnection
+  syncJuveniles(filter: ModelJuvenileFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelJuvenileConnection
+  getJuvenile(id: ID!): Juvenile
+  listJuveniles(filter: ModelJuvenileFilterInput, limit: Int, nextToken: String): ModelJuvenileConnection
+  syncBehaviors(filter: ModelBehaviorFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelBehaviorConnection
+  getBehavior(id: ID!): Behavior
+  listBehaviors(filter: ModelBehaviorFilterInput, limit: Int, nextToken: String): ModelBehaviorConnection
+  syncQueues(filter: ModelQueueFilterInput, limit: Int, nextToken: String, lastSync: AWSTimestamp): ModelQueueConnection
+  getQueue(id: ID!): Queue
+  listQueues(filter: ModelQueueFilterInput, limit: Int, nextToken: String): ModelQueueConnection
+}
+
+input CreateLocationInput {
+  name: String!
+  _version: Int
+}
+
+input UpdateLocationInput {
+  name: String
+  _version: Int
+}
+
+input DeleteLocationInput {
+  id: ID
+  _version: Int
+}
+
+type Mutation {
+  createLocation(input: CreateLocationInput!, condition: ModelLocationConditionInput): Location
+  updateLocation(input: UpdateLocationInput!, condition: ModelLocationConditionInput): Location
+  deleteLocation(input: DeleteLocationInput!, condition: ModelLocationConditionInput): Location
+  createJuvenile(input: CreateJuvenileInput!, condition: ModelJuvenileConditionInput): Juvenile
+  updateJuvenile(input: UpdateJuvenileInput!, condition: ModelJuvenileConditionInput): Juvenile
+  deleteJuvenile(input: DeleteJuvenileInput!, condition: ModelJuvenileConditionInput): Juvenile
+  createBehavior(input: CreateBehaviorInput!, condition: ModelBehaviorConditionInput): Behavior
+  updateBehavior(input: UpdateBehaviorInput!, condition: ModelBehaviorConditionInput): Behavior
+  deleteBehavior(input: DeleteBehaviorInput!, condition: ModelBehaviorConditionInput): Behavior
+  createQueue(input: CreateQueueInput!, condition: ModelQueueConditionInput): Queue
+  updateQueue(input: UpdateQueueInput!, condition: ModelQueueConditionInput): Queue
+  deleteQueue(input: DeleteQueueInput!, condition: ModelQueueConditionInput): Queue
+}
+
+input ModelLocationConditionInput {
+  name: ModelStringInput
+  and: [ModelLocationConditionInput]
+  or: [ModelLocationConditionInput]
+  not: ModelLocationConditionInput
+}
+
+type Subscription {
+  onCreateLocation: Location @aws_subscribe(mutations: ["createLocation"])
+  onUpdateLocation: Location @aws_subscribe(mutations: ["updateLocation"])
+  onDeleteLocation: Location @aws_subscribe(mutations: ["deleteLocation"])
+  onCreateJuvenile: Juvenile @aws_subscribe(mutations: ["createJuvenile"])
+  onUpdateJuvenile: Juvenile @aws_subscribe(mutations: ["updateJuvenile"])
+  onDeleteJuvenile: Juvenile @aws_subscribe(mutations: ["deleteJuvenile"])
+  onCreateBehavior: Behavior @aws_subscribe(mutations: ["createBehavior"])
+  onUpdateBehavior: Behavior @aws_subscribe(mutations: ["updateBehavior"])
+  onDeleteBehavior: Behavior @aws_subscribe(mutations: ["deleteBehavior"])
+  onCreateQueue: Queue @aws_subscribe(mutations: ["createQueue"])
+  onUpdateQueue: Queue @aws_subscribe(mutations: ["updateQueue"])
+  onDeleteQueue: Queue @aws_subscribe(mutations: ["deleteQueue"])
+}
+
+type ModelJuvenileConnection {
+  items: [Juvenile]
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelJuvenileFilterInput {
+  id: ModelIDInput
+  first_name: ModelStringInput
+  last_name: ModelStringInput
+  points: ModelIntInput
+  event_id: ModelIntInput
+  active: ModelIntInput
+  and: [ModelJuvenileFilterInput]
+  or: [ModelJuvenileFilterInput]
+  not: ModelJuvenileFilterInput
+}
+
+input CreateJuvenileInput {
+  id: ID
+  first_name: String!
+  last_name: String!
+  points: Int!
+  event_id: Int!
+  active: Int!
+  _version: Int
+}
+
+input UpdateJuvenileInput {
+  id: ID!
+  first_name: String
+  last_name: String
+  points: Int
+  event_id: Int
+  active: Int
+  _version: Int
+}
+
+input DeleteJuvenileInput {
+  id: ID
+  _version: Int
+}
+
+input ModelJuvenileConditionInput {
+  first_name: ModelStringInput
+  last_name: ModelStringInput
+  points: ModelIntInput
+  event_id: ModelIntInput
+  active: ModelIntInput
+  and: [ModelJuvenileConditionInput]
+  or: [ModelJuvenileConditionInput]
+  not: ModelJuvenileConditionInput
+}
+
+type ModelBehaviorConnection {
+  items: [Behavior]
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelCategoryInput {
+  eq: Category
+  ne: Category
+}
+
+input ModelBehaviorFilterInput {
+  id: ModelIDInput
+  title: ModelStringInput
+  category: ModelCategoryInput
+  and: [ModelBehaviorFilterInput]
+  or: [ModelBehaviorFilterInput]
+  not: ModelBehaviorFilterInput
+}
+
+input CreateBehaviorInput {
+  id: ID
+  title: String!
+  category: Category!
+  _version: Int
+  behaviorLocationId: ID!
+}
+
+input UpdateBehaviorInput {
+  id: ID!
+  title: String
+  category: Category
+  _version: Int
+  behaviorLocationId: ID
+}
+
+input DeleteBehaviorInput {
+  id: ID
+  _version: Int
+}
+
+input ModelBehaviorConditionInput {
+  title: ModelStringInput
+  category: ModelCategoryInput
+  and: [ModelBehaviorConditionInput]
+  or: [ModelBehaviorConditionInput]
+  not: ModelBehaviorConditionInput
+}
+
+type ModelQueueConnection {
+  items: [Queue]
+  nextToken: String
+  startedAt: AWSTimestamp
+}
+
+input ModelQueueFilterInput {
+  id: ModelIDInput
+  and: [ModelQueueFilterInput]
+  or: [ModelQueueFilterInput]
+  not: ModelQueueFilterInput
+}
+
+input CreateQueueInput {
+  id: ID
+  _version: Int
+}
+
+input UpdateQueueInput {
+  id: ID!
+  _version: Int
+}
+
+input DeleteQueueInput {
+  id: ID
+  _version: Int
+}
+
+input ModelQueueConditionInput {
+  and: [ModelQueueConditionInput]
+  or: [ModelQueueConditionInput]
+  not: ModelQueueConditionInput
+}

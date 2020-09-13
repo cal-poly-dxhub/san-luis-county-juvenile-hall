@@ -1,0 +1,41 @@
+{
+	"providers": {
+		"awscloudformation": {
+			"AuthRoleName": "amplify-pbisscanner-dev-05108-authRole",
+			"UnauthRoleArn": "arn:aws:iam::457651165565:role/amplify-pbisscanner-dev-05108-unauthRole",
+			"AuthRoleArn": "arn:aws:iam::457651165565:role/amplify-pbisscanner-dev-05108-authRole",
+			"Region": "us-west-2",
+			"DeploymentBucketName": "amplify-pbisscanner-dev-05108-deployment",
+			"UnauthRoleName": "amplify-pbisscanner-dev-05108-unauthRole",
+			"StackName": "amplify-pbisscanner-dev-05108",
+			"StackId": "arn:aws:cloudformation:us-west-2:457651165565:stack/amplify-pbisscanner-dev-05108/8d872b90-e9e5-11ea-bcde-0a648226af98",
+			"AmplifyAppId": "d35ps1mncw4iu3"
+		}
+	},
+	"auth": {
+		"pbisscannere8ddf393": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [],
+			"customAuth": false,
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/amplify-pbisscanner-dev-05108-deployment/amplify-cfn-templates/auth/pbisscannere8ddf393-cloudformation-template.yml",
+				"logicalId": "authpbisscannere8ddf393"
+			},
+			"lastPushTimeStamp": "2020-08-29T13:09:10.501Z",
+			"output": {
+				"AppClientSecret": "114h2g6sfbvok7e4hv3p8s67b4q3a9uc9f38l7o6l4frpb3ohech",
+				"UserPoolId": "us-west-2_SYiJ1Z7YA",
+				"AppClientIDWeb": "4cqrhf2if6d9d1nn47gjfgmf1a",
+				"AppClientID": "3ker7m9o2v6psmvo29h89rttuk",
+				"HostedUIDomain": "pbisscannere8ddf393-e8ddf393-dev",
+				"IdentityPoolId": "us-west-2:9250b5c0-4f0a-4d29-a924-97fe5a308da9",
+				"IdentityPoolName": "pbisscannere8ddf393_identitypool_e8ddf393__dev",
+				"OAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"pbisapp://\"],\"LogoutURLs\":[\"pbisapp://\"]}",
+				"UserPoolName": "pbisscannere8ddf393_userpool_e8ddf393"
+			},
+			"lastPushDirHash": "ImoryiNqxrjLshN9qz9135Vpl+8="
+		}
+	},
+	"api": {}
+}

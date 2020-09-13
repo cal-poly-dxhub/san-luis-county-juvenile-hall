@@ -1,0 +1,39 @@
+enum Category {
+    SAFE
+    RESPONSIBLE
+    CONSIDERATE
+}
+
+type Location @model {
+    id: ID!
+    name: String!
+}
+
+type Juvenile @model {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  points: Int!
+  event_id: Int!
+  active: Int!
+  isEnqueued: Boolean!
+}
+
+type Behavior @model {
+    id: ID!
+    title: String!
+    category: Category!
+    location: Location! @connection
+}
+
+type Bucket @model {
+    id: ID!
+    posts: [Post]! @connection(name:"BucketPosts")
+}
+
+type Post @model {
+    id: ID!
+    juvenile_id: String!
+    behavior_id: String!
+    bucket: Bucket! @connection(name:"BucketPosts")
+}

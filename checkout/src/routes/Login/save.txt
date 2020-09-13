@@ -1,0 +1,88 @@
+<form onSubmit={handleSubmit}>
+    <div>
+      <label>Enter ID: </label>
+      <input className = "field" type="text" name="id" onChange={handleInputChange} style = {{fontSize: "16px"}} />
+    </div>
+    <div style={{marginTop: "10px", marginBottom: "10px"}}>
+      <label htmlFor="id">Or choose a juvenile: </label>
+      <select name = "id" onChange={handleInputChange}>
+        <option value="none" selected disabled hidden> 
+          Select an Option 
+        </option> 
+        {names.map(juv => {
+          return (
+          <option key = {juv.id} value={juv.id}>{juv.name}</option>
+        )})}
+      </select>
+    </div>
+    <div>
+    <input type="submit"/>
+    </div>
+
+    <p>Your Points: {points}</p>
+  </form>
+
+  handleSubmit
+  handleInputChange
+
+        <div>
+         <div style = {box}>
+         <h4>Rewards</h4> 
+         <table>
+            <tbody>
+            <tr>
+            <th>Item</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Running Total: {total}</th>
+            </tr>
+            <tr>
+               <td></td><td></td><td></td><td></td>
+               <td>
+                  <button onClick = {() => setCart(true)}>Add to Cart</button>
+               </td>
+            </tr>
+            {list}
+            </tbody>
+         </table>
+         </div>
+         {cart && cart_list.length ?
+         <div style={padding}> 
+         <h4>Cart</h4> 
+            <table>
+               <tbody>
+               <tr>
+               <th>Item</th>
+               <th>Price</th>
+               <th>Quantity</th>
+               <th></th>
+               </tr>
+               {cart_list}
+               <tr>
+                  <td><br/><b>Points needed: {total}</b></td>
+               </tr>
+               <tr>
+                  <td></td><td></td>
+                  <td><button onClick = {handleSubmit}>Submit</button></td>
+               </tr>
+               </tbody> 
+            </table>            
+         </div> : clearCart()}
+         <div>
+            <button onClick = {() => props.show()}>Logout</button>
+         </div>
+      </div>
+
+              <ListItemSecondaryAction>
+        <Button color="primary" disabled = {checkValidDecrement(p.id)}
+            onClick = {() => onDecrement(p.id, p.price)}> - </Button>
+            <input style = {inputStyle} 
+            type="text" name={"item" + p.id}
+            value = {quantity["item" + p.id]}
+            readOnly
+            onKeyDown = {e =>  e.preventDefault()}/>
+            <Button color="primary" disabled = {checkValidIncrement(p.id)} 
+            onClick = {() => onIncrement(p.id, p.price)}> + </Button>
+          <Typography>*{p.max_quantity} per checkout</Typography>
+        </ListItemSecondaryAction>

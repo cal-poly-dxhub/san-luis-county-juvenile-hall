@@ -1,0 +1,54 @@
+{
+    "UserAgent": "aws-amplify-cli/2.0",
+    "Version": "1.0",
+    "auth": {
+        "plugins": {
+            "awsCognitoAuthPlugin": {
+                "UserAgent": "aws-amplify/cli",
+                "Version": "0.1.0",
+                "IdentityManager": {
+                    "Default": {}
+                },
+                "CognitoUserPool": {
+                    "Default": {
+                        "PoolId": "us-west-2_LIweHrX5a",
+                        "AppClientId": "5idf8tchjjn844kgftsmmmnrt4",
+                        "AppClientSecret": "q2knkkaf5jd4dmj76kdpjkenoddn8tbcm2dkp2ndaos0g1k48mg",
+                        "Region": "us-west-2"
+                    }
+                },
+                "Auth": {
+                    "Default": {
+                        "OAuth": {
+                            "WebDomain": "pbis-login.calpoly.io",
+                            "AppClientId": "5idf8tchjjn844kgftsmmmnrt4",
+                            "AppClientSecret": "q2knkkaf5jd4dmj76kdpjkenoddn8tbcm2dkp2ndaos0g1k48mg",
+                            "SignInRedirectURI": "pbisapp://",
+                            "SignOutRedirectURI": "pbisapp://",
+                            "Scopes": [
+                                "email",
+                                "openid",
+                                "profile",
+                            ]
+                        },
+                        "authenticationFlowType": "USER_SRP_AUTH"
+                    }
+                }
+
+            }
+        }
+    },
+    "api": {
+        "plugins": {
+            "awsAPIPlugin": {
+                "PbisGraphQL": {
+                    "endpointType": "GraphQL",
+                    "endpoint": "https://y74cq6qeo5etzhtqrqdnqkftiq.appsync-api.us-west-2.amazonaws.com/graphql",
+                    "region": "us-west-2",
+                    "authorizationType": "API_KEY",
+                    "apiKey": "da2-ayfyxwsw4beq5ht3664zuiqjxi"
+                }
+            }
+        }
+    }
+}

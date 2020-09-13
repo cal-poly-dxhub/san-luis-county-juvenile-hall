@@ -1,0 +1,13 @@
+{
+    "AppSyncApiName": "pbisscanner",
+    "DynamoDBBillingMode": "PAY_PER_REQUEST",
+    "DynamoDBEnableServerSideEncryption": false,
+    "AuthCognitoUserPoolId": {
+        "Fn::GetAtt": [
+            "authpbisscannere8ddf393",
+            "Outputs.UserPoolId"
+        ]
+    },
+    "S3DeploymentBucket": "amplify-pbisscanner-dev-05108-deployment",
+    "S3DeploymentRootKey": "amplify-appsync-files/2bdc036266e8c9ec4141afec6012d9f03b60afdb"
+}

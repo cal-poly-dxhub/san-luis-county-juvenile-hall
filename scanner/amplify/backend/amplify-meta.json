@@ -1,0 +1,56 @@
+{
+    "providers": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-pbisscanner-dev-05108-authRole",
+            "UnauthRoleArn": "arn:aws:iam::457651165565:role/amplify-pbisscanner-dev-05108-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::457651165565:role/amplify-pbisscanner-dev-05108-authRole",
+            "Region": "us-west-2",
+            "DeploymentBucketName": "amplify-pbisscanner-dev-05108-deployment",
+            "UnauthRoleName": "amplify-pbisscanner-dev-05108-unauthRole",
+            "StackName": "amplify-pbisscanner-dev-05108",
+            "StackId": "arn:aws:cloudformation:us-west-2:457651165565:stack/amplify-pbisscanner-dev-05108/8d872b90-e9e5-11ea-bcde-0a648226af98",
+            "AmplifyAppId": "d35ps1mncw4iu3"
+        }
+    },
+    "auth": {
+        "pbisscannere8ddf393": {
+            "service": "Cognito",
+            "providerPlugin": "awscloudformation",
+            "dependsOn": [],
+            "customAuth": false,
+            "providerMetadata": {
+                "s3TemplateURL": "https://s3.amazonaws.com/amplify-pbisscanner-dev-05108-deployment/amplify-cfn-templates/auth/pbisscannere8ddf393-cloudformation-template.yml",
+                "logicalId": "authpbisscannere8ddf393"
+            },
+            "lastPushTimeStamp": "2020-08-29T13:15:41.260Z",
+            "output": {
+                "AppClientSecret": "q2knkkaf5jd4dmj76kdpjkenoddn8tbcm2dkp2ndaos0g1k48mg",
+                "UserPoolId": "us-west-2_LIweHrX5a",
+                "AppClientIDWeb": "6tl1gkrrilt0epslt07ar1qhgf",
+                "AppClientID": "5idf8tchjjn844kgftsmmmnrt4",
+                "HostedUIDomain": "pbis-login.calpoly.io",
+                "OAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"email\",\"openid\",\"profile\"],\"CallbackURLs\":[\"pbisapp://\"],\"LogoutURLs\":[\"pbisapp://\"]}",
+                "UserPoolName": "slojh-app-users"
+            },
+            "lastPushDirHash": "ImoryiNqxrjLshN9qz9135Vpl+8="
+        }
+    },
+    "api": {
+        "pbisscanner": {
+            "service": "AppSync",
+            "providerPlugin": "awscloudformation",
+            "output": {
+                "authConfig": {
+                    "defaultAuthentication": {
+                        "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+                        "userPoolConfig": {
+                            "userPoolId": "authpbisscannere8ddf393"
+                        }
+                    },
+                    "additionalAuthenticationProviders": []
+                }
+            },
+            "lastPushTimeStamp": "2020-08-30T13:14:09.019Z"
+        }
+    }
+}

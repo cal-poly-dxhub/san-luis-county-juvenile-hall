@@ -1,0 +1,14 @@
+{
+    "region": "us-west-2",
+    "userPool": "us-west-2_LIweHrX5a",
+    "userPoolBaseUri": "https://pbis-login.calpoly.io",
+    "clientId": "6nbs6bes6p290oap5mh46hegai",
+    "callbackUri": "http://localhost:3000/callback",
+    "signoutUri": "http://localhost:3000",
+    "tokenScopes": [
+        "openid",
+        "email",
+        "profile",
+        "https://cognito-demo-api.arronharden.com/hello-world.all"                
+    ]
+}

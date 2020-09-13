@@ -1,0 +1,3 @@
+[submodule "slo-county-juvenile-hall"]
+	path = slo-county-juvenile-hall
+	url = https://git-codecommit.us-west-2.amazonaws.com/v1/repos/slo-county-juvenile-hall
