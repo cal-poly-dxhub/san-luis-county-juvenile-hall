@@ -1,7 +1,7 @@
 # SLO County Juvenile Hall Apps
 
 ### backend
-- Code to populate database tables, AWS Lambda Functions, and an API Gateway
+- Code to initialize RDS database tables, AWS Lambda Functions, and an API Gateway
 - AWS CloudFormation templates for configuring AWS environment
 #### lambda
 1. getJuvenileData
@@ -33,7 +33,4 @@ aws lambda update-function-code --function-name <lambdaFunctionName> --zip-file 
 ```
 
 ### checkout
-- React web application
-
-### scanner
-- 
+[README](checkout/README.md)
