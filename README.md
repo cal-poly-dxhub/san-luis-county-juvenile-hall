@@ -28,9 +28,14 @@
 
 To update and publish lambda function code form the CLI (AWS CLI installation required):
 ```
-zip -r zipFile.zip <lambdaFunctionName> pymysql [...]
+zip -r zipFile.zip <lambdaFunctionName> [...]
 aws lambda update-function-code --function-name <lambdaFunctionName> --zip-file fileb://zipFile.zip
 ```
+
+extra 'files' to include in zip -> pymysql, utility.py
+
+#### database
+.sql scripts are supplied here to initialize the database with Tables as well as populate the tables with test data or rewards, locations, etc. data.
 
 ### checkout
 [README](checkout/README.md)
