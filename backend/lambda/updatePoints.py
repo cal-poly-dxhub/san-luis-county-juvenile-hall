@@ -120,14 +120,33 @@ def increment_points(cur, juvenile_id, officer_name, behavior_id):
                       "VALUES (%s, %s, NOW(), %s)")
     cur.execute(log_assignment, [juvenile_id, officer_name, behavior_id])
     
-    update_points = "UPDATE Juvenile SET TotalPoints = TotalPoints + 1 WHERE Id = %s"
-    cur.execute(update_points, [juvenile_id])
+    update_points = """ UPDATE JuvenileEvent
+                        JOIN (	SELECT	JuvenileEvent.Id,
+                                        JuvenileEvent.EDateTime
+                                FROM JuvenileEvent
+                                JOIN    (SELECT JuvenileId,
+                                                MAX(EDateTime) AS date
+                                        FROM JuvenileEvent
+                                        GROUP BY JuvenileId)
+                                AS RecentEvent ON JuvenileEvent.JuvenileId = RecentEvent.JuvenileId AND JuvenileEvent.EDateTime = RecentEvent.date
+                                WHERE JuvenileEvent.JuvenileId = %s) AS MaxDate
+                        ON JuvenileEvent.Id = MaxDate.Id
+                        SET JuvenileEvent.TotalPoints = JuvenileEvent.TotalPoints + 1
+                        WHERE JuvenileEvent.JuvenileId = %s"""
+    response = cur.execute(update_points, [juvenile_id, juvenile_id])
+    logger.info(response)
 
-    juvenile_select = ("SELECT Juvenile.Id, Juvenile.FirstName, Juvenile.LastName, " +
-                       "Juvenile.TotalPoints, JuvenileEvent.Id, JuvenileEvent.Active " +
-                       "FROM Juvenile JOIN JuvenileEvent ON Juvenile.Id = " +
-                       "JuvenileEvent.JuvenileId WHERE Juvenile.Id = %s " +
-                       "ORDER BY JuvenileEvent.EDateTime DESC")
+    juvenile_select = """SELECT  Juvenile.Id,
+                                Juvenile.FirstName,
+                                Juvenile.LastName,
+                                JuvenileEvent.TotalPoints,
+                                JuvenileEvent.Id,
+                                JuvenileEvent.Active
+                        FROM Juvenile
+                        JOIN JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId
+                        WHERE Juvenile.Id = %s
+                        ORDER BY JuvenileEvent.EDateTime DESC
+                        LIMIT 1"""
     cur.execute(juvenile_select, [juvenile_id])
     db_entry = cur.fetchone()
 
@@ -173,14 +192,33 @@ def decrease_points(cur, juvenile_id, officer_name, rewards):
     cur.execute(update_claim_points, [str(points), claim_id])
 
     #update point value of juvenile
-    update_juvenile = "UPDATE Juvenile SET TotalPoints = TotalPoints - %s WHERE Id = %s"
-    cur.execute(update_juvenile, [str(points), juvenile_id])
+    update_juvenile = """ UPDATE JuvenileEvent
+                        JOIN (	SELECT	JuvenileEvent.Id,
+                                        JuvenileEvent.EDateTime
+                                FROM JuvenileEvent
+                                JOIN    (SELECT JuvenileId,
+                                                MAX(EDateTime) AS date
+                                        FROM JuvenileEvent
+                                        GROUP BY JuvenileId)
+                                AS RecentEvent ON JuvenileEvent.JuvenileId = RecentEvent.JuvenileId AND JuvenileEvent.EDateTime = RecentEvent.date
+                                WHERE JuvenileEvent.JuvenileId = %s) AS MaxDate
+                        ON JuvenileEvent.Id = MaxDate.Id
+                        SET JuvenileEvent.TotalPoints = JuvenileEvent.TotalPoints - %s
+                        WHERE JuvenileEvent.JuvenileId = %s"""
+
+    cur.execute(update_juvenile, [juvenile_id, str(points), juvenile_id])
     
-    juvenile_select = ("SELECT Juvenile.Id, Juvenile.FirstName, Juvenile.LastName, " +
-                       "Juvenile.TotalPoints, JuvenileEvent.Id, JuvenileEvent.Active " +
-                       "FROM Juvenile JOIN JuvenileEvent ON Juvenile.Id = " +
-                       "JuvenileEvent.JuvenileId WHERE Juvenile.Id = %s " +
-                       "ORDER BY JuvenileEvent.EDateTime DESC")
+    juvenile_select = """SELECT  Juvenile.Id,
+                                Juvenile.FirstName,
+                                Juvenile.LastName,
+                                JuvenileEvent.TotalPoints,
+                                JuvenileEvent.Id,
+                                JuvenileEvent.Active
+                        FROM Juvenile
+                        JOIN JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId
+                        WHERE Juvenile.Id = %s
+                        ORDER BY JuvenileEvent.EDateTime DESC
+                        LIMIT 1"""
     cur.execute(juvenile_select, [juvenile_id])
     db_entry = cur.fetchone()
 
@@ -200,17 +238,35 @@ def admin_point_change(cur, juvenile_id, admin_name, points):
                   "VALUES (%s, %s, %s, NOW())")
     cur.execute(log_change, [admin_name, juvenile_id, points])
     
-    update_points = "UPDATE Juvenile SET TotalPoints = TotalPoints + %s WHERE Id = %s"
-    cur.execute(update_points, [points, juvenile_id])
+    update_points = """ UPDATE JuvenileEvent
+                        JOIN (	SELECT	JuvenileEvent.Id,
+                                        JuvenileEvent.EDateTime
+                                FROM JuvenileEvent
+                                JOIN    (SELECT JuvenileId,
+                                                MAX(EDateTime) AS date
+                                        FROM JuvenileEvent
+                                        GROUP BY JuvenileId)
+                                AS RecentEvent ON JuvenileEvent.JuvenileId = RecentEvent.JuvenileId AND JuvenileEvent.EDateTime = RecentEvent.date
+                                WHERE JuvenileEvent.JuvenileId = %s) AS MaxDate
+                        ON JuvenileEvent.Id = MaxDate.Id
+                        SET JuvenileEvent.TotalPoints = JuvenileEvent.TotalPoints + %s
+                        WHERE JuvenileEvent.JuvenileId = %s"""
+    cur.execute(update_points, [juvenile_id, points, juvenile_id])
     
-    juvenile_select = ("SELECT Juvenile.Id, Juvenile.FirstName, Juvenile.LastName, " +
-                       "Juvenile.TotalPoints, JuvenileEvent.Id, JuvenileEvent.Active " +
-                       "FROM Juvenile JOIN JuvenileEvent ON Juvenile.Id = " +
-                       "JuvenileEvent.JuvenileId WHERE Juvenile.Id = %s " +
-                       "ORDER BY JuvenileEvent.EDateTime DESC")
+    juvenile_select = """SELECT  Juvenile.Id,
+                                Juvenile.FirstName,
+                                Juvenile.LastName,
+                                JuvenileEvent.TotalPoints,
+                                JuvenileEvent.Id,
+                                JuvenileEvent.Active
+                        FROM Juvenile
+                        JOIN JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId
+                        WHERE Juvenile.Id = %s
+                        ORDER BY JuvenileEvent.EDateTime DESC
+                        LIMIT 1"""
     cur.execute(juvenile_select, [juvenile_id])
+    
     db_entry = cur.fetchone()
-
     juvenile = {
         "id": db_entry[0],
         "first_name": db_entry[1],

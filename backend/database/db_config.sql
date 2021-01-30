@@ -20,14 +20,14 @@ drop table if exists BehaviorCategory;
 create table Juvenile (
 	Id integer primary key,
     FirstName varchar(100) not null,
-    LastName varchar(100) not null,
-    TotalPoints integer not null
+    LastName varchar(100) not null
 );
 
 create table JuvenileEvent (
 	Id integer primary key,
     JuvenileId integer,
     Active boolean not null,
+    TotalPoints integer default 0,
     EDateTime datetime not null, -- used to determine the most recent event id for a given juvenile
     foreign key (JuvenileId) references Juvenile(Id)
 );

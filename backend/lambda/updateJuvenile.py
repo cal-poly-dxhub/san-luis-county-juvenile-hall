@@ -121,19 +121,25 @@ def create_juvenile(cur, first_name, last_name, event_id):
     else:
         juvenile_id = "1001"
 
-    juvenile_insert = ("INSERT INTO Juvenile (Id, FirstName, LastName, TotalPoints) " +
-                       "VALUES (%s, %s, %s, 0)")
+    juvenile_insert = ("INSERT INTO Juvenile (Id, FirstName, LastName) VALUES (%s, %s, %s)")
     cur.execute(juvenile_insert, [juvenile_id, first_name, last_name])
 
     event_insert = ("INSERT INTO JuvenileEvent (Id, JuvenileId, Active, EDateTime) " +
                     "VALUES (%s, %s, 1, NOW())")
     cur.execute(event_insert, [event_id, juvenile_id])
 
-    juvenile_select = ("SELECT Juvenile.Id, Juvenile.FirstName, Juvenile.LastName, " +
-                       "Juvenile.TotalPoints, JuvenileEvent.Id, JuvenileEvent.Active " +
-                       "FROM Juvenile JOIN JuvenileEvent ON Juvenile.Id = " +
-                       "JuvenileEvent.JuvenileId WHERE Juvenile.Id = %s " +
-                       "ORDER BY JuvenileEvent.EDateTime DESC")
+    juvenile_select = """SELECT  Juvenile.Id,
+                                Juvenile.FirstName,
+                                Juvenile.LastName,
+                                JuvenileEvent.TotalPoints,
+                                JuvenileEvent.Id,
+                                JuvenileEvent.Active
+                        FROM Juvenile
+                        JOIN JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId
+                        WHERE Juvenile.Id = %s
+                        ORDER BY JuvenileEvent.EDateTime DESC
+                        LIMIT 1"""
+    
     cur.execute(juvenile_select, [juvenile_id])
     db_entry = cur.fetchone()
 
@@ -151,24 +157,30 @@ def create_juvenile(cur, first_name, last_name, event_id):
 def map_juvenile_event(cur, event_id, juvenile_id, activate):
     if activate == True:
         try:
-            event_insert = ("INSERT INTO JuvenileEvent (Id, JuvenileId, Active, EDateTime) " +
-                            "VALUES (%s, %s, 1, NOW())")
+            event_insert = ("INSERT INTO JuvenileEvent (Id, JuvenileId, Active, EDateTime) VALUES (%s, %s, 1, NOW())")
             cur.execute(event_insert, [event_id, juvenile_id])
         except:
-            set_active = "UPDATE JuvenileEvent SET Active = 1 WHERE Id = %s AND JuvenileId = %s"
+            set_active = "UPDATE JuvenileEvent SET Active = 1, EDateTime = NOW() WHERE Id = %s AND JuvenileId = %s"
             cur.execute(set_active, [event_id, juvenile_id])
     else:
         event_update = "UPDATE JuvenileEvent SET Active = 0 WHERE Id = %s"
         cur.execute(event_update, [event_id])
 
-        point_reset = "UPDATE Juvenile SET TotalPoints = 0 WHERE Id = %s"
-        cur.execute(point_reset, [juvenile_id])
+        #refactor PointTotals to be referenced within JuvenileEvent instead of Juvenile
+        #point_reset = "UPDATE Juvenile SET TotalPoints = 0 WHERE Id = %s"
+        #cur.execute(point_reset, [juvenile_id])
 
-    juvenile_select = ("SELECT Juvenile.Id, Juvenile.FirstName, Juvenile.LastName, " +
-                       "Juvenile.TotalPoints, JuvenileEvent.Id, JuvenileEvent.Active " +
-                       "FROM Juvenile JOIN JuvenileEvent ON Juvenile.Id = " +
-                       "JuvenileEvent.JuvenileId WHERE Juvenile.Id = %s " +
-                       "ORDER BY JuvenileEvent.EDateTime DESC")
+    juvenile_select= """SELECT  Juvenile.Id,
+                                Juvenile.FirstName,
+                                Juvenile.LastName,
+                                JuvenileEvent.TotalPoints,
+                                JuvenileEvent.Id,
+                                JuvenileEvent.Active
+                        FROM Juvenile
+                        JOIN JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId
+                        WHERE Juvenile.Id = %s
+                        ORDER BY JuvenileEvent.EDateTime DESC
+                        LIMIT 1"""
     cur.execute(juvenile_select, [juvenile_id])
     db_entry = cur.fetchone()
 

@@ -65,7 +65,6 @@ def lambda_handler(event, context):
             if active != None:
                 if active != "1" and active != "0":
                     return request_error(response, 400, "ERROR: invalid input to parameter: active.")
-                active = int(active)
         result = get_juvenile(cur, event_id, active)
 
     elif target == "transactions" or target == "modifications":
@@ -156,26 +155,39 @@ def get_locations(cur):
 
 def get_juvenile(cur, event_id, active):
     #this sql statement retrieves the most recent juvenile/event-id entry for each juvenile in the database
-    select_juvenile = ("select Juvenile.Id, Juvenile.FirstName, Juvenile.LastName, " +
-                       "Juvenile.TotalPoints, JuvenileEvent.Id, JuvenileEvent.Active " +
-                       "from Juvenile join (select JuvenileEvent.Id, JuvenileEvent.JuvenileId, " +
-                       "JuvenileEvent.Active, JuvenileEvent.EDateTime from JuvenileEvent join " +
-                       "(select JuvenileId, max(EDateTime) as date from JuvenileEvent group by JuvenileId) " +
-                       "as maxDates on JuvenileEvent.JuvenileId = maxDates.JuvenileId and JuvenileEvent.EDateTime = maxDates.date) " +
-                       "as JuvenileEvent on Juvenile.Id = JuvenileEvent.JuvenileId")
+    select_juveniles = """SELECT  Juvenile.Id,
+                                Juvenile.FirstName,
+                                Juvenile.LastName,
+                                JuvenileEvent.TotalPoints,
+                                JuvenileEvent.Id,
+                                JuvenileEvent.Active
+                        FROM Juvenile
+                        JOIN    (SELECT JuvenileEvent.Id,
+                                        JuvenileEvent.JuvenileId,
+                                        JuvenileEvent.Active,
+                                        JuvenileEvent.EDateTime,
+                                        JuvenileEvent.TotalPoints
+                                FROM JuvenileEvent
+                                JOIN    (SELECT JuvenileId,
+                                                MAX(EDateTime) AS date
+                                        FROM JuvenileEvent
+                                        GROUP BY JuvenileId)
+                                AS maxDates ON JuvenileEvent.JuvenileId = maxDates.JuvenileId AND JuvenileEvent.EDateTime = maxDates.date)
+                        AS JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId"""
+    
     parameters = {"JuvenileEvent.Id" : event_id, "JuvenileEvent.Active": active}
     
     if event_id == None and active == None:
-        cur.execute(select_juvenile)
+        cur.execute(select_juveniles)
     elif event_id != None and active != None:
-        select_juvenile += " where JuvenileEvent.Id = %s and JuvenileEvent.Active = %s"
-        cur.execute(select_juvenile, [event_id, active])
+        select_juveniles += " WHERE JuvenileEvent.Id = %s AND JuvenileEvent.Active = %s"
+        cur.execute(select_juveniles, [event_id, active])
     elif event_id != None:
-        select_juvenile += " where JuvenileEvent.Id = %s"
-        cur.execute(select_juvenile, [event_id])
+        select_juveniles += " WHERE JuvenileEvent.Id = %s"
+        cur.execute(select_juveniles, [event_id])
     elif active != None:
-        select_juvenile += " where JuvenileEvent.Active = %s"
-        cur.execute(select_juvenile, [active])
+        select_juveniles += " WHERE JuvenileEvent.Active = %s"
+        cur.execute(select_juveniles, [active])
     
     juveniles = []
     juvenile = {}
