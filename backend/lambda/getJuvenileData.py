@@ -1,10 +1,8 @@
 import json
-import boto3
 import pymysql
-import logging
+from utility import *
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = init_logger()
 
 def lambda_handler(event, context):
     logger.info("event info: {}".format(event))
@@ -90,21 +88,6 @@ def lambda_handler(event, context):
 
 #-------------------------------------------------------------------------------
 
-def request_error(response, status_code, body):
-    response['statusCode'] = str(status_code)
-    error = { "message": body }
-    logger.info("error: {}".format(body))
-    response['body'] = json.dumps(error)
-    return response
-
-
-def query_constraints(parameters):
-    query_stmt = " where "
-    for param in parameters:
-            if parameters.get(param) != None:
-                query_stmt += param + " = " + str(parameters.get(param)) + " and "
-    return query_stmt[0 : len(query_stmt) - len(" and ")] + ";"
-
 
 def get_rewards(cur):
     select_rewards = ("select Rewards.Id, RewardCategory.Description, Rewards.MaxQuantity, " +
@@ -176,6 +159,8 @@ def get_juvenile(cur, event_id, active):
                         AS JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId"""
     
     parameters = {"JuvenileEvent.Id" : event_id, "JuvenileEvent.Active": active}
+
+
     
     if event_id == None and active == None:
         cur.execute(select_juveniles)
@@ -259,14 +244,3 @@ def get_modifications(cur, juvenile_id):
         }
         itemized_modifications.append(modification)
     return itemized_modifications
-
-def get_secret():
-    secret_name = "slojhAppAccess"
-    client = boto3.client("secretsmanager")
-
-    get_secret_value_response = client.get_secret_value(
-        SecretId=secret_name
-    )
-    
-    if 'SecretString' in get_secret_value_response:
-        return get_secret_value_response['SecretString']

@@ -1,10 +1,8 @@
 import json
 import pymysql
-import logging
-import boto3, base64
+from utility import *
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = init_logger()
 
 def lambda_handler(event, context):
     logger.info("event info: {}".format(event))
@@ -96,13 +94,6 @@ def lambda_handler(event, context):
 
 
 #----------------------------------lambda_handler helper functions----------------------------------
-
-def request_error(response, status_code, body):
-    response['statusCode'] = str(status_code)
-    error = { "message": body }
-    logger.info("error: {}".format(body))
-    response['body'] = json.dumps(error)
-    return response
 
 
 def create_juvenile(cur, first_name, last_name, event_id):
@@ -204,15 +195,3 @@ def delete_juvenile(cur, juvenile_id):
     cur.execute("delete from JuvenileEvent where JuvenileId = %s",[juvenile_id])
     cur.execute("delete from Juvenile where Id = %s",[juvenile_id])
     return {}
-
-
-def get_secret():
-    secret_name = "slojhAppAccess"
-    client = boto3.client("secretsmanager")
-
-    get_secret_value_response = client.get_secret_value(
-        SecretId=secret_name
-    )
-    
-    if 'SecretString' in get_secret_value_response:
-        return get_secret_value_response['SecretString']
