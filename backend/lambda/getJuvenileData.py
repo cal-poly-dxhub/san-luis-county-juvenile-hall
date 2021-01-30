@@ -104,7 +104,7 @@ def query_constraints(parameters):
     for param in parameters:
             if parameters.get(param) != None:
                 query_stmt += param + " = " + str(parameters.get(param)) + " and "
-    return query_stmt[0 : len(query_stmt) - 5] + ";"
+    return query_stmt[0 : len(query_stmt) - len(" and ")] + ";"
 
 
 def get_rewards(cur):
