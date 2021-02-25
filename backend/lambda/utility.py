@@ -1,7 +1,11 @@
 import boto3
+import json
 import logging
 
+logger = None
+
 def init_logger():
+    global logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     return logger
