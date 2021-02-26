@@ -2,12 +2,10 @@ import boto3
 import json
 import logging
 
-logger = None
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def init_logger():
-    global logger
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
     return logger
 
 def request_error(response, status_code, body):
