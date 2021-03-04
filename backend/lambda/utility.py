@@ -5,13 +5,13 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def init_logger():
+def get_logger():
     return logger
 
 def request_error(response, status_code, body):
     response['statusCode'] = str(status_code)
     error = { "message": body }
-    logger.info("error: {}".format(body))
+    logger.error(body)
     response['body'] = json.dumps(error)
     return response
 
