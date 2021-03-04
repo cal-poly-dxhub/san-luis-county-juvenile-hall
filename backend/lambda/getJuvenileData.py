@@ -2,11 +2,12 @@ import json
 import pymysql
 from utility import *
 
-logger = init_logger()
+logger = get_logger()
 
 def lambda_handler(event, context):
     logger.info("event info: {}".format(event))
     
+    result = None
     response = {
         "isBase64Encoded": "false",
         "statusCode": "200",
@@ -18,6 +19,14 @@ def lambda_handler(event, context):
             "Access-Control-Allow-Headers": "Content-Type,Date,X-Amzn-Trace-Id,x-amz-apigw-id,x-amzn-RequestId,Authorization",
         }
     }
+
+    try:
+        target = event['pathParameters']['proxy'].lower()
+        parameters = event.get('queryStringParameters')
+        if target not in ["rewards", "behaviors", "locations", "juveniles", "transactions", "modifications"]:
+            raise Exception()
+    except:
+        return request_error(response, 404, "invalid path parameter.")
     
     try:
         dbCredentials = eval(get_secret())
@@ -26,23 +35,12 @@ def lambda_handler(event, context):
         NAME = dbCredentials['username']
         PASSWORD = dbCredentials['password']
         DB_NAME = dbCredentials['dbname']
-    except Exception as e:
-        logger.info(str(e))
-        return request_error(response, 500, "database credentials improperly configured server-side.")
 
-    try:
         conn = pymysql.connect(host=RDS_HOST, user=NAME, password=PASSWORD, database=DB_NAME, connect_timeout=5)
-    except:
-        return request_error(response, 503, "cannot connect to database")
+    except Exception as e:
+        logger.error(str(e))
+        return request_error(response, 503, "cannot secure database connection")
     cur = conn.cursor()
-    
-    result = None
-    
-    try:
-        target = event['pathParameters']['proxy'].lower()
-        parameters = event.get('queryStringParameters')
-    except:
-        return request_error(response, 404, "ERROR: invalid path parameter.")
     
     if target == "rewards":
         result = get_rewards(cur)
@@ -62,25 +60,18 @@ def lambda_handler(event, context):
             active = parameters.get('active')
             if active != None:
                 if active != "1" and active != "0":
-                    return request_error(response, 400, "ERROR: invalid input to parameter: active.")
+                    conn.close()
+                    return request_error(response, 400, "invalid input to parameter: active")
         result = get_juvenile(cur, event_id, active)
 
     elif target == "transactions" or target == "modifications":
         try:
-            juvenile_id = parameters.get('juvenile_id')
-            if juvenile_id == None:
-                raise Exception()
-            juvenile_id = str(juvenile_id)
+            juvenile_id = str(parameters['juvenile_id'])
         except:
             conn.close()
-            return request_error(response, 400, "ERROR: missing juvenile_id parameter.")
+            return request_error(response, 400, "required parameter: juvenile_id")
         result = get_transactions(cur, juvenile_id) if target == "transactions" else get_modifications(cur, juvenile_id)
-
-    else:
-        conn.close()
-        return request_error(response, 404, "ERROR: invalid path parameter.")
     
-    conn.commit()
     conn.close()
     
     response['body'] = json.dumps(result)
@@ -90,9 +81,16 @@ def lambda_handler(event, context):
 
 
 def get_rewards(cur):
-    select_rewards = ("select Rewards.Id, RewardCategory.Description, Rewards.MaxQuantity, " +
-                   "Rewards.Item, Rewards.Price, Rewards.Image from Rewards join RewardCategory on " +
-                   "RewardCategory.Id = Rewards.Category;")
+    select_rewards = """SELECT  Rewards.Id,
+                                RewardCategory.Description,
+                                Rewards.MaxQuantity,
+                                Rewards.Item,
+                                Rewards.Price,
+                                Rewards.Image 
+                        FROM Rewards
+                        JOIN RewardCategory
+                        ON RewardCategory.Id = Rewards.Category;"""
+    
     cur.execute(select_rewards)
     rewards = []
 
@@ -110,11 +108,14 @@ def get_rewards(cur):
 
 
 def get_behaviors(cur):
-    select_behaviors = ("select Behaviors.id, Behaviors.Description, " +
-                        "BehaviorCategory.Name, Location.Name " +
-                        "from Behaviors join BehaviorCategory on " +
-                        "Behaviors.CategoryId = BehaviorCategory.Id join Location on " +
-                        "Behaviors.LocationId = Location.Id;")
+    select_behaviors = """  SELECT  Behaviors.id,
+                                    Behaviors.Description,
+                                    BehaviorCategory.Name,
+                                    Location.Name
+                            FROM Behaviors
+                            JOIN BehaviorCategory
+                            ON Behaviors.CategoryId = BehaviorCategory.Id
+                            JOIN Location ON Behaviors.LocationId = Location.Id;"""
     cur.execute(select_behaviors)
     behaviors = []
     
@@ -130,7 +131,7 @@ def get_behaviors(cur):
 
 
 def get_locations(cur):
-    select_locations = "select Name from Location;"
+    select_locations = "SELECT Name FROM Location;"
     cur.execute(select_locations)
     locations = [location[0] for location in cur.fetchall()]
     return locations
@@ -138,30 +139,29 @@ def get_locations(cur):
 
 def get_juvenile(cur, event_id, active):
     #this sql statement retrieves the most recent juvenile/event-id entry for each juvenile in the database
-    select_juveniles = """SELECT  Juvenile.Id,
-                                Juvenile.FirstName,
-                                Juvenile.LastName,
-                                JuvenileEvent.TotalPoints,
-                                JuvenileEvent.Id,
-                                JuvenileEvent.Active
-                        FROM Juvenile
-                        JOIN    (SELECT JuvenileEvent.Id,
-                                        JuvenileEvent.JuvenileId,
-                                        JuvenileEvent.Active,
-                                        JuvenileEvent.EDateTime,
-                                        JuvenileEvent.TotalPoints
-                                FROM JuvenileEvent
-                                JOIN    (SELECT JuvenileId,
-                                                MAX(EDateTime) AS date
-                                        FROM JuvenileEvent
-                                        GROUP BY JuvenileId)
-                                AS maxDates ON JuvenileEvent.JuvenileId = maxDates.JuvenileId AND JuvenileEvent.EDateTime = maxDates.date)
-                        AS JuvenileEvent ON Juvenile.Id = JuvenileEvent.JuvenileId"""
-    
-    parameters = {"JuvenileEvent.Id" : event_id, "JuvenileEvent.Active": active}
+    select_juveniles = """  SELECT  Juvenile.Id,
+                                    Juvenile.FirstName,
+                                    Juvenile.LastName,
+                                    JuvenileEvent.TotalPoints,
+                                    JuvenileEvent.Id,
+                                    JuvenileEvent.Active
+                            FROM Juvenile
+                            JOIN    (SELECT JuvenileEvent.Id,
+                                            JuvenileEvent.JuvenileId,
+                                            JuvenileEvent.Active,
+                                            JuvenileEvent.EDateTime,
+                                            JuvenileEvent.TotalPoints
+                                    FROM JuvenileEvent
+                                    JOIN    (SELECT JuvenileId,
+                                                    MAX(EDateTime) AS date
+                                            FROM JuvenileEvent
+                                            GROUP BY JuvenileId)
+                                    AS maxDates
+                                    ON JuvenileEvent.JuvenileId = maxDates.JuvenileId
+                                        AND JuvenileEvent.EDateTime = maxDates.date)
+                            AS JuvenileEvent
+                            ON Juvenile.Id = JuvenileEvent.JuvenileId"""
 
-
-    
     if event_id == None and active == None:
         cur.execute(select_juveniles)
     elif event_id != None and active != None:
@@ -191,11 +191,20 @@ def get_juvenile(cur, event_id, active):
 
 
 def get_transactions(cur, juvenile_id):
-    get_claims = ("select RewardClaim.Id, RewardClaim.OfficerName, RewardClaim.Points, " +
-                  "RewardClaim.CDateTime, Rewards.Item, Transactions.Quantity, Rewards.Price from " +
-                  "RewardClaim join Transactions on RewardClaim.Id = Transactions.ClaimId " +
-                  "join Rewards on Rewards.Id = Transactions.RewardId where " +
-                  "RewardClaim.JuvenileId = %s order by CDateTime desc;")
+    get_claims = """SELECT  RewardClaim.Id,
+                            RewardClaim.OfficerName, 
+                            RewardClaim.Points,
+                            RewardClaim.CDateTime,
+                            Rewards.Item,
+                            Transactions.Quantity,
+                            Rewards.Price
+                    FROM RewardClaim
+                    JOIN Transactions
+                    ON RewardClaim.Id = Transactions.ClaimId
+                    JOIN Rewards
+                    ON Rewards.Id = Transactions.RewardId
+                    WHERE RewardClaim.JuvenileId = %s
+                    ORDER BY CDateTime DESC;"""
     
     cur.execute(get_claims, [juvenile_id])
     itemized_claims = cur.fetchall()
@@ -231,8 +240,12 @@ def get_transactions(cur, juvenile_id):
 
 
 def get_modifications(cur, juvenile_id):
-    select_modifications = ("select AdminName, Points, PDateTime from PointChange " +
-                            "where JuvenileId = %s order by PDateTime desc;")
+    select_modifications = """  SELECT  AdminName,
+                                        Points,
+                                        PDateTime
+                                FROM PointChange
+                                WHERE JuvenileId = %s
+                                ORDER BY PDateTime DESC;"""
     cur.execute(select_modifications, [juvenile_id])
     
     itemized_modifications = []
