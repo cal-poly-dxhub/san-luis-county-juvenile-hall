@@ -2,7 +2,7 @@ import json
 import pymysql
 from utility import *
 
-logger = init_logger()
+logger = get_logger()
 
 def lambda_handler(event, context):
     logger.info("event info: {}".format(event))
