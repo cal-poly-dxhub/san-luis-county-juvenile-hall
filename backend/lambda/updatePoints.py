@@ -1,6 +1,7 @@
 import json
 import pymysql
 from utility import *
+import jwt
 
 logger = get_logger()
 
@@ -49,11 +50,12 @@ def lambda_handler(event, context):
     
     #secure officer info
     try:
-        officer_info = event['requestContext']['authorizer']['claims']
+        officer_info = jwt.decode(event['headers']['Authorization'].split(" ")[1], options={"verify_signature": False})
         
         officer_name = officer_info['cognito:username']
         officer_group = officer_info.get('cognito:groups') #will not throw an exception if 'cognito:groups' doesnt appear as a key
-    except:
+    except Exception as e:
+        logger.error(str(e))
         return request_error(response, 401, "ERROR: Officer credentials missing from request.")
     
     result = None
